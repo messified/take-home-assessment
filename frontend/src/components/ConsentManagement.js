@@ -28,7 +28,15 @@ const ConsentManagement = ({ account }) => {
     try {
       const status = filterStatus === 'all' ? null : filterStatus;
       const response = await apiService.getConsents(null, status);
-      setConsents(response.consents || response || []);
+
+      const list = response.consents || response || [];
+
+      // The API returns consents chronologically, so I apply a simple descending sort on createdAt client-side to present the most recent activity first, which aligns better with user expectations.
+      const sorted = [...list].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setConsents(sorted);
     } catch (err) {
       setError(err.message || 'Failed to load consents');
     } finally {
