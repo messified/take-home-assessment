@@ -24,7 +24,7 @@ export function useConsents({ patientId, defaultStatus = '' } = {}) {
     } catch (err) {
       setError(err.message || 'Failed to load consents');
     } finally {
-      setLoading(false);
+      setLoading(false); 
     }
   }
 
