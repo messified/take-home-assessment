@@ -7,15 +7,20 @@ const TransactionHistory = ({ account }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // TODO: Implement fetchTransactions function
+  // ✅ Implement fetchTransactions
   useEffect(() => {
     const fetchTransactions = async () => {
       setLoading(true);
+      setError(null);
+
       try {
-        // TODO: Call apiService.getTransactions with account address if available
-        // TODO: Update transactions state
+        // Call apiService.getTransactions with account address if available
+        const data = await apiService.getTransactions(account || null, 20);
+
+        // Update transactions state
+        setTransactions(data.transactions || data || []);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || 'Failed to load transactions');
       } finally {
         setLoading(false);
       }
@@ -30,8 +35,11 @@ const TransactionHistory = ({ account }) => {
   };
 
   const formatDate = (timestamp) => {
-    // TODO: Format the timestamp to a readable date
-    return timestamp;
+    if (!timestamp) return '';
+    const date = new Date(timestamp);
+    return isNaN(date.getTime())
+      ? timestamp
+      : date.toLocaleString();
   };
 
   if (loading) {
@@ -61,19 +69,56 @@ const TransactionHistory = ({ account }) => {
         )}
       </div>
 
-      {/* TODO: Display transactions list */}
-      {/* Show: type, from, to, amount, currency, status, timestamp, blockchainTxHash */}
       <div className="transactions-list">
-        {/* Your implementation here */}
-        <div className="placeholder">
-          <p>Transaction list will be displayed here</p>
-          <p>Implement the transaction list rendering</p>
-        </div>
+        {transactions.length === 0 ? (
+          <div className="placeholder">
+            <p>No transactions found</p>
+          </div>
+        ) : (
+          transactions.map((tx) => (
+            <div key={tx.id} className="transaction-card">
+              <div className="transaction-row">
+                <span className="label">Type:</span>
+                <span>{tx.type}</span>
+              </div>
+
+              <div className="transaction-row">
+                <span className="label">From:</span>
+                <span>{formatAddress(tx.from)}</span>
+              </div>
+
+              <div className="transaction-row">
+                <span className="label">To:</span>
+                <span>{formatAddress(tx.to)}</span>
+              </div>
+
+              <div className="transaction-row">
+                <span className="label">Amount:</span>
+                <span>{tx.amount} {tx.currency}</span>
+              </div>
+
+              <div className="transaction-row">
+                <span className="label">Status:</span>
+                <span>{tx.status}</span>
+              </div>
+
+              <div className="transaction-row">
+                <span className="label">Date:</span>
+                <span>{formatDate(tx.timestamp)}</span>
+              </div>
+
+              {tx.blockchainTxHash && (
+                <div className="transaction-row">
+                  <span className="label">Hash:</span>
+                  <span className="hash">{tx.blockchainTxHash}</span>
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 };
 
 export default TransactionHistory;
-
-

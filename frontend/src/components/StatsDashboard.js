@@ -7,15 +7,20 @@ const StatsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // TODO: Implement fetchStats function
+  // ✅ Implement fetchStats function
   useEffect(() => {
     const fetchStats = async () => {
       setLoading(true);
+      setError(null);
+
       try {
-        // TODO: Call apiService.getStats()
-        // TODO: Update stats state
+        // Call apiService.getStats()
+        const data = await apiService.getStats();
+
+        // Update stats state
+        setStats(data);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || 'Failed to load statistics');
       } finally {
         setLoading(false);
       }
@@ -35,7 +40,9 @@ const StatsDashboard = () => {
   if (error || !stats) {
     return (
       <div className="stats-dashboard-container">
-        <div className="error">Error loading statistics: {error || 'No data available'}</div>
+        <div className="error">
+          Error loading statistics: {error || 'No data available'}
+        </div>
       </div>
     );
   }
@@ -43,14 +50,36 @@ const StatsDashboard = () => {
   return (
     <div className="stats-dashboard-container">
       <h2>Platform Statistics</h2>
-      
-      {/* TODO: Display statistics in a nice grid layout */}
-      {/* Show: totalPatients, totalRecords, totalConsents, activeConsents, pendingConsents, totalTransactions */}
+
       <div className="stats-grid">
-        {/* Your implementation here */}
-        <div className="placeholder">
-          <p>Statistics will be displayed here</p>
-          <p>Implement the statistics dashboard</p>
+        <div className="stat-card">
+          <h3>{stats.totalPatients}</h3>
+          <p>Total Patients</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{stats.totalRecords}</h3>
+          <p>Total Records</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{stats.totalConsents}</h3>
+          <p>Total Consents</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{stats.activeConsents}</h3>
+          <p>Active Consents</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{stats.pendingConsents}</h3>
+          <p>Pending Consents</p>
+        </div>
+
+        <div className="stat-card">
+          <h3>{stats.totalTransactions}</h3>
+          <p>Total Transactions</p>
         </div>
       </div>
     </div>
@@ -58,5 +87,3 @@ const StatsDashboard = () => {
 };
 
 export default StatsDashboard;
-
-

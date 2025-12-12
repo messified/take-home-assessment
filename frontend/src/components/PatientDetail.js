@@ -8,17 +8,24 @@ const PatientDetail = ({ patientId, onBack }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // TODO: Implement fetchPatientData function
-  // This should fetch both patient details and their records
+  // Implement fetchPatientData function
   useEffect(() => {
     const fetchPatientData = async () => {
       setLoading(true);
+      setError(null);
+
       try {
-        // TODO: Fetch patient data using apiService.getPatient(patientId)
-        // TODO: Fetch patient records using apiService.getPatientRecords(patientId)
-        // TODO: Update state with fetched data
+        // Fetch patient data
+        const patientData = await apiService.getPatient(patientId);
+
+        // Fetch patient records
+        const recordsData = await apiService.getPatientRecords(patientId);
+
+        // Update state with fetched data
+        setPatient(patientData);
+        setRecords(recordsData.records || recordsData || []);
       } catch (err) {
-        setError(err.message);
+        setError(err.message || 'Failed to load patient data');
       } finally {
         setLoading(false);
       }
@@ -40,7 +47,9 @@ const PatientDetail = ({ patientId, onBack }) => {
   if (error || !patient) {
     return (
       <div className="patient-detail-container">
-        <div className="error">Error loading patient: {error || 'Patient not found'}</div>
+        <div className="error">
+          Error loading patient: {error || 'Patient not found'}
+        </div>
         <button onClick={onBack} className="back-btn">Back to List</button>
       </div>
     );
@@ -53,24 +62,45 @@ const PatientDetail = ({ patientId, onBack }) => {
       </div>
 
       <div className="patient-detail-content">
-        {/* TODO: Display patient information */}
-        {/* Show: name, email, dateOfBirth, gender, phone, address, walletAddress */}
+        {/* Patient information */}
         <div className="patient-info-section">
           <h2>Patient Information</h2>
-          {/* Your implementation here */}
-          <div className="placeholder">
-            <p>Display patient information here</p>
-          </div>
+
+          <p><strong>Name:</strong> {patient.name}</p>
+          <p><strong>Email:</strong> {patient.email}</p>
+          <p><strong>Date of Birth:</strong> {patient.dateOfBirth}</p>
+          <p><strong>Gender:</strong> {patient.gender}</p>
+          <p><strong>Phone:</strong> {patient.phone}</p>
+          <p><strong>Address:</strong> {patient.address}</p>
+          <p><strong>Wallet:</strong> {patient.walletAddress}</p>
         </div>
 
-        {/* TODO: Display patient records */}
-        {/* Show list of medical records with: type, title, date, doctor, hospital, status */}
+        {/* Patient records */}
         <div className="patient-records-section">
           <h2>Medical Records ({records.length})</h2>
-          {/* Your implementation here */}
-          <div className="placeholder">
-            <p>Display medical records here</p>
-          </div>
+
+          {records.length === 0 ? (
+            <div className="placeholder">
+              <p>No medical records found</p>
+            </div>
+          ) : (
+            records.map((record) => (
+              <div key={record.id} className="record-card">
+                <p><strong>Type:</strong> {record.type}</p>
+                <p><strong>Title:</strong> {record.title}</p>
+                <p><strong>Date:</strong> {new Date(record.date).toLocaleDateString()}</p>
+                <p><strong>Doctor:</strong> {record.doctor}</p>
+                <p><strong>Hospital:</strong> {record.hospital}</p>
+                <p><strong>Status:</strong> {record.status}</p>
+
+                {record.blockchainHash && (
+                  <p className="hash">
+                    <strong>Blockchain Hash:</strong> {record.blockchainHash}
+                  </p>
+                )}
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
@@ -78,5 +108,3 @@ const PatientDetail = ({ patientId, onBack }) => {
 };
 
 export default PatientDetail;
-
-

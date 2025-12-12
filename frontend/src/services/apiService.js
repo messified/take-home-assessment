@@ -45,7 +45,7 @@ export const apiService = {
   },
 
   getConsent: async (id) => {
-    const response = await api.get(`/consents/${id}`);
+    const response = await api.get(`/consents/${id}`);  
     return response.data;
   },
 

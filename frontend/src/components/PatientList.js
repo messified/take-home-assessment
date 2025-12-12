@@ -10,19 +10,24 @@ const PatientList = ({ onSelectPatient }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState(null);
 
-  // TODO: Implement the fetchPatients function
-  // This function should:
-  // 1. Call apiService.getPatients with appropriate parameters (page, limit, search)
-  // 2. Update the patients state with the response data
-  // 3. Update the pagination state
-  // 4. Handle loading and error states
+  // Implement the fetchPatients function
   const fetchPatients = async () => {
-    // Your implementation here
     setLoading(true);
+    setError(null);
+
     try {
-      // TODO: Call API and update state
+      // Call API and update state
+      const data = await apiService.getPatients(currentPage, 10, searchTerm);
+
+      setPatients(data.patients || []);
+      setPagination({
+        total: data.total,
+        page: currentPage,
+        limit: 10,
+        totalPages: Math.ceil((data.total || 0) / 10),
+      });
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Failed to load patients');
     } finally {
       setLoading(false);
     }
@@ -32,10 +37,10 @@ const PatientList = ({ onSelectPatient }) => {
     fetchPatients();
   }, [currentPage, searchTerm]);
 
-  // TODO: Implement search functionality
-  // Add a debounce or handle search input changes
+  // Implement search functionality
   const handleSearch = (e) => {
-    // Your implementation here
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // reset to first page on new search
   };
 
   if (loading) {
@@ -58,31 +63,59 @@ const PatientList = ({ onSelectPatient }) => {
     <div className="patient-list-container">
       <div className="patient-list-header">
         <h2>Patients</h2>
-        {/* TODO: Add search input field */}
+
+        {/* Search input field */}
         <input
           type="text"
           placeholder="Search patients..."
           className="search-input"
-          // TODO: Add value, onChange handlers
+          value={searchTerm}
+          onChange={handleSearch}
         />
       </div>
 
-      {/* TODO: Implement patient list display */}
-      {/* Map through patients and display them */}
-      {/* Each patient should be clickable and call onSelectPatient with patient.id */}
+      {/* Patient list display */}
       <div className="patient-list">
-        {/* Your implementation here */}
-        <div className="placeholder">
-          <p>Patient list will be displayed here</p>
-          <p>Implement the patient list rendering</p>
-        </div>
+        {patients.length === 0 ? (
+          <div className="placeholder">
+            <p>No patients found</p>
+          </div>
+        ) : (
+          patients.map((patient) => (
+            <div
+              key={patient.id}
+              className="patient-card"
+              onClick={() => onSelectPatient(patient.id)}
+            >
+              <h3>{patient.name}</h3>
+              <p>{patient.email}</p>
+              <p>{patient.gender}</p>
+              <p>{patient.phone}</p>
+            </div>
+          ))
+        )}
       </div>
 
-      {/* TODO: Implement pagination controls */}
-      {/* Show pagination buttons if pagination data is available */}
-      {pagination && (
+      {/* Pagination controls */}
+      {pagination && pagination.totalPages > 1 && (
         <div className="pagination">
-          {/* Your pagination implementation here */}
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+          >
+            Previous
+          </button>
+
+          <span>
+            Page {pagination.page} of {pagination.totalPages}
+          </span>
+
+          <button
+            disabled={currentPage === pagination.totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+          >
+            Next
+          </button>
         </div>
       )}
     </div>
@@ -90,5 +123,3 @@ const PatientList = ({ onSelectPatient }) => {
 };
 
 export default PatientList;
-
-
